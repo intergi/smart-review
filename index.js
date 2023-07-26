@@ -9,7 +9,7 @@ const DEFAULT_TEMPERATURE = 0.1
 const DEFAULT_TOP_N = 1
 
 function transformToGithubApi(url) {
-    return url.replace('github.com', 'api.github.com/repos').replace('.diff', '');
+    return url.replace('github.com', 'api.github.com/repos').replace('/pull/', '/pulls/').replace('.diff', '');
 }
 
 async function run() {
@@ -17,7 +17,6 @@ async function run() {
         const apiKey = core.getInput('apiKey', {required: true});
         const apiBaseUrl = core.getInput('apiBaseUrl', {required: false}) || 'https://api.openai.com/v1';
         const githubToken = core.getInput('githubToken', {required: true});
-        const githubPAT = core.getInput('githubPAT', {required: true});
         const model = core.getInput('model') || DEFAULT_MODEL;
         const temperature = +core.getInput('temperature') || DEFAULT_TEMPERATURE;
         const top_n = +core.getInput('top_n') || DEFAULT_TOP_N;
@@ -26,7 +25,7 @@ async function run() {
         const headers = {
             'headers': {
                 'Accept': 'application/vnd.github.diff',
-                'Authorization': `Bearer ${githubPAT}`,
+                'Authorization': `Bearer ${githubToken}`,
                 'X-GitHub-Api-Version': '2022-11-28'
             }
         };

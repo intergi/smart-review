@@ -8,6 +8,10 @@ const DEFAULT_MODEL = 'gpt-3.5-turbo'
 const DEFAULT_TEMPERATURE = 0.1
 const DEFAULT_TOP_N = 1
 
+function transformToGithubApi(url) {
+    return url.replace('github.com', 'api.github.com/repos').replace('.diff', '');
+}
+
 async function run() {
     try {
         const apiKey = core.getInput('apiKey', {required: true});
@@ -18,11 +22,19 @@ async function run() {
         const top_n = +core.getInput('top_n') || DEFAULT_TOP_N;
         const debug = core.getBooleanInput('debug');
 
+        const headers = {
+            'headers': {
+                'Accept': 'application/vnd.github.diff',
+                'Authorization': `Bearer ${githubToken}`,
+                'X-GitHub-Api-Version': '2022-11-28'
+            }
+        };
+
         const context = github.context;
         const pr = context.payload.pull_request;
-        const patchUrl = pr.diff_url;
+        const patchUrl = transformToGithubApi(pr.diff_url);
         core.info('pr patch url is ' + patchUrl)
-        const response = await axios.get(patchUrl);
+        const response = await axios.get(patchUrl, headers);
         const patchContent = response.data;
         core.info('pr patch data is ' + patchContent.length);
         const chatAPI = new ChatGPTAPI({

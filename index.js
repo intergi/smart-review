@@ -17,6 +17,7 @@ async function run() {
         const apiKey = core.getInput('apiKey', {required: true});
         const apiBaseUrl = core.getInput('apiBaseUrl', {required: false}) || 'https://api.openai.com/v1';
         const githubToken = core.getInput('githubToken', {required: true});
+        const githubPAT = core.getInput('githubPAT', {required: true});
         const model = core.getInput('model') || DEFAULT_MODEL;
         const temperature = +core.getInput('temperature') || DEFAULT_TEMPERATURE;
         const top_n = +core.getInput('top_n') || DEFAULT_TOP_N;
@@ -25,7 +26,7 @@ async function run() {
         const headers = {
             'headers': {
                 'Accept': 'application/vnd.github.diff',
-                'Authorization': `Bearer ${githubToken}`,
+                'Authorization': `Bearer ${githubPAT}`,
                 'X-GitHub-Api-Version': '2022-11-28'
             }
         };

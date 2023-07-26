@@ -7,6 +7,9 @@ inputs:
   githubToken:
     description: 'The github token'
     required: true
+  githubPAT:
+    description: 'The personal access token to get information inside private repo'
+    required: true
   apiBaseUrl:
     description: 'The OpenAI API base url'
     required: false

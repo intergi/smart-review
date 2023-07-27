@@ -2,6 +2,7 @@ import core from '@actions/core';
 import github from '@actions/github';
 import axios from 'axios';
 import { ChatGPTAPI } from 'chatgpt';
+import { Configuration, OpenAIApi } from 'openai';
 import fetch from 'node-fetch';
 
 const DEFAULT_MODEL = 'gpt-3.5-turbo'
@@ -37,17 +38,22 @@ async function run() {
         const response = await axios.get(patchUrl, headers);
         const patchContent = response.data;
         core.info('pr patch data is ' + patchContent.length);
-        const chatAPI = new ChatGPTAPI({
+
+        const configuration = new Configuration({
             apiKey: apiKey,
-            apiBaseUrl: apiBaseUrl,
-            debug: debug,
-            completionParams: {
-                model: model,
-                temperature: temperature,
-                top_p: top_n,
-            },
-            fetch: fetch,
         });
+        const openai = new OpenAIApi(configuration);
+        // const chatAPI = new ChatGPTAPI({
+        //     apiKey: apiKey,
+        //     apiBaseUrl: apiBaseUrl,
+        //     debug: debug,
+        //     completionParams: {
+        //         model: model,
+        //         temperature: temperature,
+        //         top_p: top_n,
+        //     },
+        //     fetch: fetch,
+        // });
     
 
         const SYSTEM_MESSAGE =
@@ -63,16 +69,22 @@ async function run() {
         core.info(systemMessage);
         core.info('start send');
         console.time('code-review cost');
-        const res = await chatAPI.sendMessage(patchContent, {systemMessage: systemMessage});
+        const completion = await openai.createChatCompletion({
+            model: model,
+            messages: [{"role": "system", "content": systemMessage}, {role: "user", content: patchContent}],
+        });
+        const answer = completion.data.choices[0].message.content;
+        // console.log(completion.data.choices[0].message);
+        // const res = await chatAPI.sendMessage(patchContent, {systemMessage: systemMessage});
         console.timeEnd('code-review cost');
-        core.info(res.text);
+        core.info(answer);
 
         const octokit = github.getOctokit(githubToken);
         await octokit.rest.issues.createComment({
             owner: context.repo.owner,
             repo: context.repo.repo,
             issue_number: context.issue.number,
-            body: res.text,
+            body: answer,
         });
     } catch (error) {
         core.setFailed(error.message);

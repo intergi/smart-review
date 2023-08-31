@@ -5,7 +5,7 @@ import { ChatGPTAPI } from 'chatgpt';
 import { Configuration, OpenAIApi } from 'openai';
 import fetch from 'node-fetch';
 
-const DEFAULT_MODEL = 'gpt-3.5-turbo'
+const DEFAULT_MODEL = 'gpt-3.5-turbo-16k'
 const DEFAULT_TEMPERATURE = 0.1
 const DEFAULT_TOP_N = 1
 
